@@ -18,33 +18,31 @@
 
         <java.version>17</java.version>
         <kotlin.version>1.9.21</kotlin.version>
+
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.zavier</groupId>
             <artifactId>ddd-ems-adapter</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.zavier</groupId>
             <artifactId>ddd-ems-client</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.zavier</groupId>
             <artifactId>ddd-ems-app</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.zavier</groupId>
             <artifactId>ddd-ems-domain</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.zavier</groupId>
             <artifactId>ddd-ems-infrastructure</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
