@@ -1,5 +1,6 @@
 package com.github.zavier.ems.orgmng.orgservice
 
+import com.github.zavier.ems.common.framework.BusinessException
 import com.github.zavier.ems.orgmng.org.Org
 import com.github.zavier.ems.orgmng.org.OrgBuilderFactory
 import com.github.zavier.ems.orgmng.org.OrgHandler
@@ -34,6 +35,27 @@ class OrgService(
         return buildOrgDto(org)
     }
 
+    @Transactional
+    fun updateOrgBasic(id: Long, request: UpdateOrgBasicRequest, userId: Long): OrgResponse {
+        val org: Org = orgRepository.findById(request.tenantId, id)
+            ?: throw BusinessException("要修改的组织(id=$id)不存在！");
+
+        orgHandler.updateBasic(org, request.name, request.leaderId, userId)
+        orgRepository.update(org)
+
+        return buildOrgDto(org)
+    }
+
+    @Transactional
+    fun cancelOrg(tenant: Long, id: Long, userId: Long): Long {
+        val org: Org = orgRepository.findById(tenant, id)
+            ?: throw BusinessException("要取消的组织(id =$id  )不存在！")
+
+        orgHandler.cancel(org, userId)
+        orgRepository.update(org)
+
+        return org.id
+    }
 
     private fun buildOrgDto(org: Org): OrgResponse {
         val response = OrgResponse(
@@ -53,6 +75,8 @@ class OrgService(
     }
 
 }
+
+data class UpdateOrgBasicRequest(var tenantId: Long, var leaderId: Long, var name: String)
 
 data class CreateOrgRequest(
     val tenantId: Long,
