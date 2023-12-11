@@ -71,6 +71,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.zavier</groupId>
+            <artifactId>ddd-ems-app</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.zavier</groupId>
+            <artifactId>ddd-ems-domain</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
