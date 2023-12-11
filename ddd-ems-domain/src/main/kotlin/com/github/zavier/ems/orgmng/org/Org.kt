@@ -19,10 +19,6 @@ class Org(val tenantId: Long, val orgTypeCode: String, createdAt: LocalDateTime,
     val isCanceled: Boolean
         get() = status == OrgStatus.CANCELLED
 
-    fun setStatus(status: OrgStatus) {
-        this.status = status
-    }
-
     fun cancel() {
         this.status = OrgStatus.CANCELLED
     }

@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 
 abstract class AuditableEntity(var createdAt: LocalDateTime, var createdBy: Long) {
-    private var changingStatus: ChangingStatus = ChangingStatus.NEW
+    var changingStatus: ChangingStatus = ChangingStatus.NEW
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
     var lastUpdatedBy: Long = 0
 

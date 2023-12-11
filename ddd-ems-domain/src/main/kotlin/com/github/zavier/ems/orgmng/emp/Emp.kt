@@ -5,24 +5,23 @@ import com.github.zavier.ems.common.framework.BusinessException
 import com.github.zavier.ems.common.valueobject.Period
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 class Emp : AggregateRoot {
-    var id: Long? = null
+    var id: Long = 0
     val tenantId: Long
-    var orgId: Long? = null
-    var empNum: String? = null
-    var idNum: String? = null
-    var name: String? = null
-    var gender: Gender? = null
-    var dob: LocalDate? = null
-    var status: EmpStatus? = null
+    var orgId: Long = 0
+    var empNum: String = ""
+    var idNum: String = ""
+    var name: String = ""
+    var gender: Gender = Gender.MALE
+    var dob: LocalDate = LocalDate.now()
+    var status: EmpStatus = EmpStatus.PROBATION
 
-    val skills: MutableMap<Long, Skill> = mutableMapOf()
+    private val skills: MutableMap<Long, Skill> = mutableMapOf()
 
-    val experiences: MutableMap<Period, WorkExperience> = mutableMapOf()
+    private val experiences: MutableMap<Period, WorkExperience> = mutableMapOf()
 
-    val empPosts: MutableList<EmpPost> = mutableListOf()
+    private val empPosts: MutableList<EmpPost> = mutableListOf()
 
     // 用于新建员工
     constructor(tenantId: Long, status: EmpStatus, createdBy: Long) : super(LocalDateTime.now(), createdBy) {
@@ -37,14 +36,12 @@ class Emp : AggregateRoot {
     }
 
     fun becomeRegular(): Emp {
-        requireNotNull(status) { "状态不能为空" }
-        status = status!!.becomeRegular()
+        status = status.becomeRegular()
         return this
     }
 
     fun terminate(): Emp {
-        requireNotNull(status) { "状态不能为空" }
-        status = status!!.terminate()
+        status = status.terminate()
         return this
     }
 
@@ -52,7 +49,7 @@ class Emp : AggregateRoot {
         return skills.values.toList()
     }
 
-    private fun getSkill(skillTypeId: Long): Skill? {
+    fun getSkill(skillTypeId: Long): Skill? {
         return skills[skillTypeId]
     }
 
@@ -92,11 +89,11 @@ class Emp : AggregateRoot {
         }
     }
 
-    fun getExperiences(): Collection<WorkExperience> {
-        return Collections.unmodifiableCollection(experiences.values)
+    fun getExperiences(): List<WorkExperience> {
+        return experiences.values.toList()
     }
 
-    private fun getExperience(period: Period): WorkExperience? {
+    fun getExperience(period: Period): WorkExperience? {
         return experiences[period]
     }
 
@@ -141,7 +138,7 @@ class Emp : AggregateRoot {
     }
 
 
-    fun getEmpPosts(): List<EmpPost> {
+    fun getPosts(): List<EmpPost> {
         return empPosts.toList()
     }
 

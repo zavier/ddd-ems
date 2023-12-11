@@ -9,9 +9,9 @@ import java.util.*
 class Skill(val tenantId: Long, val skillTypeId: Long, createdBy: Long) :
     AuditableEntity(LocalDateTime.now(), createdBy) {
 
-    var id: Long? = null
-    var level: SkillLevel? = null
-    var duration: Int? = null
+    var id: Long = 0
+    var level: SkillLevel = SkillLevel.BEGINNER
+    var duration: Int = 0
 
     fun setLevel(level: SkillLevel): Skill {
         this.level = level
@@ -54,9 +54,9 @@ class WorkExperience(
     createdAt: LocalDateTime,
     createdBy: Long
 ) : AuditableEntity(createdAt, createdBy) {
-    var company: String? = null
+    var company: String = ""
 
-    fun getPeriod(): Period {
+    fun getWorkPeriod(): Period {
         return this.period
     }
 
