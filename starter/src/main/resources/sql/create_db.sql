@@ -1,321 +1,312 @@
 -- Tenant module begin
-drop table if exists tenant;
-create table tenant
-(
-    id              bigint auto_increment primary key,
-    name            varchar(50) not null,
-    status_code     char(2)     not null,
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime    null,
-    last_updated_by bigint         null
-);
+DROP TABLE if EXISTS tenant;
+CREATE TABLE `tenant` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL COMMENT '租户名称',
+  `status_code` char(2) NOT NULL COMMENT '租户状态',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB COMMENT='租户表';
 -- Tenant module end
 
 -- Orgmnt module begin
-drop table if exists post;
-create table post
-(
-    code            char(10)    primary key,
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    name            varchar(50) not null,
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
+DROP TABLE if EXISTS post;
+CREATE TABLE `post` (
+  `code` char(10) NOT NULL,
+  `tenant_id` bigint NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`code`),
+  KEY `idx_tenant_id` (`tenant_id`)
+) ENGINE=InnoDB COMMENT='岗位';
 
-create index post__tenant on post (tenant_id);
-
-drop table if exists org_type;
-create table org_type
-(
-    code            char(10)             not null primary key,
-    tenant_id       bigint                  not null,
-    name            varchar(50)          not null,
-    status_code     char(2) default 'EF' not null,
-    created_at      datetime             not null,
-    created_by      bigint                  not null,
-    last_updated_at datetime             null,
-    last_updated_by bigint                  null
-);
-
-create index org_type__tenant on org_type (tenant_id);
-
-drop table if exists org;
-create table org
-(
-    id              bigint         auto_increment primary key,
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    superior_id     bigint,                        -- virtual fk to org.id
-    org_type_code   char(10)    not null,       -- virtual fk to org_type.code
-    leader_id       bigint,                        -- virtual fk to emp.id
-    name            varchar(50) not null,
-    status_code     char(10)    not null,
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
-
-create index org__tenant on org (tenant_id);
-create index org__superior on org (superior_id);
-create index org__org_type on org (org_type_code);
-create index org__leader on org (leader_id);
-
-drop table if exists emp;
-create table emp
-(
-    id              bigint auto_increment primary key,
-    tenant_id       bigint                   not null,
-    org_id          bigint                   null,
-    emp_num         varchar(20)           not null,
-    id_num          varchar(20)           not null,
-    name            varchar(20)           not null,
-    gender_code     varchar(20)           null,
-    dob             date                  null,
-    status_code     char(3) default 'REG' not null,
-    version         bigint default 0      null,
-    created_at      datetime              not null,
-    created_by      bigint                   not null,
-    last_updated_at datetime              null,
-    last_updated_by bigint                   null
-);
-
-create index emp__org on emp (org_id);
-create index emp__tenant on emp (tenant_id);
-
-drop table if exists skill;
-create table skill_type
-(
-    id              bigint auto_increment primary key,
-    tenant_id       bigint                   not null,
-    name            varchar(50)              not null,
-    created_at      datetime                 not null,
-    created_by      bigint                   not null,
-    last_updated_at datetime                 null,
-    last_updated_by bigint                   null
-);
-
-drop table if exists skill;
-create table skill
-(
-    id              bigint auto_increment primary key,
-    tenant_id       bigint                   not null,
-    skill_type_id   bigint                   not null,
-    emp_id          bigint                   not null,
-    level_code      char(3)                  null,
-    duration        int                      null,
-    created_at      datetime                 not null,
-    created_by      bigint                   not null,
-    last_updated_at datetime                 null,
-    last_updated_by bigint                   null
-);
-create index skill__emp_id on skill (emp_id);
-
-drop table if exists work_experience;
-create table work_experience
-(
-    id              bigint auto_increment primary key,
-    tenant_id       bigint                   not null,
-    emp_id          bigint                   not null,
-    company         varchar(50)              not null,
-    start_date      date                     not null,
-    end_date        date                     null,
-    created_at      datetime                 not null,
-    created_by      bigint                   not null,
-    last_updated_at datetime                 null,
-    last_updated_by bigint                   null
-);
-create index work_experience__emp_id on work_experience (emp_id);
+DROP TABLE if EXISTS org_type;
+CREATE TABLE `org_type` (
+  `code` char(10) NOT NULL COMMENT '组织类型编码',
+  `tenant_id` bigint NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `status_code` char(2) NOT NULL DEFAULT 'EF',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`code`),
+  KEY `idx_tenant_id` (`tenant_id`)
+) ENGINE=InnoDB COMMENT='组织类型表';
 
 
-drop table if exists emp_num_counter;
-create table emp_num_counter
-(
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    year_num        int            not null,
-    max_emp_num     int            not null,
-    primary key (tenant_id, year_num)
-);
+DROP TABLE if EXISTS org;
+CREATE TABLE `org` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `superior_id` bigint DEFAULT NULL COMMENT '上级组织ID',
+  `org_type_code` char(10) NOT NULL COMMENT '组织类型编码',
+  `leader_id` bigint DEFAULT NULL COMMENT '负责人ID',
+  `name` varchar(50) NOT NULL COMMENT '组织名称',
+  `status_code` char(10) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_superior_id` (`superior_id`),
+  KEY `idx_org_type_code` (`org_type_code`),
+  KEY `idx_leader_id` (`leader_id`)
+) ENGINE=InnoDB COMMENT='组织表';
 
 
-drop table if exists emp_post;
-create table emp_post
-(
-    emp_id          bigint,                        -- pk, virtual fk to tenant.id
-    post_code       char(10),                   -- pk, virtual fk to org.id
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime,
-    last_updated_by bigint,
-    primary key (emp_id, post_code)
-);
+DROP TABLE if EXISTS emp;
+CREATE TABLE `emp` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `org_id` bigint DEFAULT NULL COMMENT '员工所属组织ID',
+  `emp_num` varchar(20) NOT NULL COMMENT '员工编号',
+  `id_num` varchar(20) NOT NULL COMMENT '身份证号',
+  `name` varchar(20) NOT NULL COMMENT '姓名',
+  `gender_code` varchar(20) DEFAULT NULL COMMENT '性别',
+  `dob` date DEFAULT NULL COMMENT '出生日期',
+  `status_code` char(3) NOT NULL DEFAULT 'REG',
+  `version` bigint DEFAULT '0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_org_id` (`org_id`)
+) ENGINE=InnoDB COMMENT='员工表';
 
-create index emp_post__post on emp_post (post_code);
+
+DROP TABLE if EXISTS skill;
+CREATE TABLE `skill_type` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB COMMENT='技能类型表';
+
+DROP TABLE if EXISTS skill;
+CREATE TABLE `skill` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `skill_type_id` bigint NOT NULL COMMENT '技能类型ID',
+  `emp_id` bigint NOT NULL COMMENT '所属员工ID',
+  `level_code` char(3) DEFAULT NULL,
+  `duration` int DEFAULT NULL COMMENT '时长',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_emp_id` (`emp_id`)
+) ENGINE=InnoDB COMMENT='技能表';
+
+DROP TABLE if EXISTS work_experience;
+CREATE TABLE `work_experience` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `emp_id` bigint NOT NULL,
+  `company` varchar(50) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_emp_id` (`emp_id`)
+) ENGINE=InnoDB COMMENT='工作经验';
+
+
+DROP TABLE if EXISTS emp_num_counter;
+CREATE TABLE `emp_num_counter` (
+  `tenant_id` bigint NOT NULL,
+  `year_num` int NOT NULL,
+  `max_emp_num` int NOT NULL,
+  PRIMARY KEY (`tenant_id`,`year_num`)
+) ENGINE=InnoDB COMMENT='员工编号计数表';
+
+
+DROP TABLE if EXISTS emp_post;
+CREATE TABLE `emp_post` (
+  `emp_id` bigint NOT NULL COMMENT '员工ID',
+  `post_code` char(10) NOT NULL COMMENT '岗位编码',
+  `tenant_id` bigint NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`emp_id`,`post_code`),
+  KEY `post_code`(`post_code`)
+) ENGINE=InnoDB COMMENT='员工岗位';
 -- Orgmnt module end
 
 -- Projectmng module begin
-drop table if exists client;
-create table client
-(
-    id              bigint         auto_increment primary key,
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    curr_mng_id     bigint         not null,       -- virtual fk to emp.id
-    name            varchar(10) not null,
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
+DROP TABLE if EXISTS client;
+CREATE TABLE `client` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `curr_mng_id` bigint NOT NULL COMMENT '客户经理ID',
+  `name` varchar(10) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id`(`tenant_id`),
+  KEY `idx_curr_mng_id`(`curr_mng_id`)
+) ENGINE=InnoDB COMMENT='客户';
 
-create index client__tenant on client (tenant_id);
-create index client__curr_mng on client (curr_mng_id);
+DROP TABLE if EXISTS contract;
+CREATE TABLE `contract` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `client_id` bigint NOT NULL COMMENT '客户ID',
+  `curr_mng_id` bigint NOT NULL COMMENT '合同经理',
+  `num` varchar(50) NOT NULL COMMENT '合同编码',
+  `name` varchar(50) DEFAULT NULL COMMENT '合同名称',
+  `status_code` char(2) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_client_id` (`client_id`),
+  KEY `idx_curr_mng_id` (`curr_mng_id`)
+) ENGINE=InnoDB COMMENT='合同';
 
-drop table if exists contract;
-create table contract
-(
-    id              bigint         auto_increment primary key,
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    client_id       bigint         not null,       -- virtual fk to client.id
-    curr_mng_id     bigint         not null,       -- virtual fk to emp.id
-    num             varchar(50) not null,
-    name            varchar(50),
-    status_code     char(2)     not null,
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
+DROP TABLE if EXISTS project;
+CREATE TABLE `project` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `contract_id` bigint NOT NULL COMMENT '合同ID',
+  `curr_mng_id` bigint NOT NULL COMMENT '项目经理',
+  `num` varchar(50) NOT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `status_code` char(5) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_contract_id` (`contract_id`),
+  KEY `idx_curr_mng_id` (`curr_mng_id`)
+) ENGINE=InnoDB COMMENT='项目';
 
-create index contract__tenant on contract (tenant_id);
-create index contract__client on contract (client_id);
-create index contract__curr_mng on contract (curr_mng_id);
-
-drop table if exists project;
-create table project
-(
-    id              bigint         auto_increment primary key,
-    tenant_id       bigint         not null,       -- virtual fk to tenant.id
-    contract_id     bigint         not null,       -- virtual fk to client.id
-    curr_mng_id     bigint         not null,       -- virtual fk to emp.id
-    num             varchar(50) not null,
-    name            varchar(50),
-    status_code     char(5)     not null,
-    created_at      datetime    not null,
-    created_by      bigint         not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
-
-create index project__tenant on project (tenant_id);
-create index project__contract on project (contract_id);
-create index project__curr_mng on project (curr_mng_id);
-
-drop table if exists client_mng;
-create table client_mng
-(
-    id              bigint      auto_increment primary key,
-    tenant_id       bigint      not null,       -- virtual fk to tenant.id
-    client_id       bigint      not null,       -- virtual fk to client.id
-    mng_id          bigint      not null,       -- virtual fk to emp.id
-    start_at        datetime not null,
-    end_at          datetime,
-    created_at      datetime not null,
-    created_by      bigint   not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
-
-create index client_mng__tenant on client_mng (tenant_id);
-create index client_mng__contract on client_mng (client_id);
-create index client_mng__mng on client_mng (mng_id);
+DROP TABLE if EXISTS client_mng;
+CREATE TABLE `client_mng` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `client_id` bigint NOT NULL,
+  `mng_id` bigint NOT NULL,
+  `start_at` datetime NOT NULL,
+  `end_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_client_id` (`client_id`),
+  KEY `idx_mng_id` (`mng_id`)
+) ENGINE=InnoDB COMMENT='客户经理关系记录表';
 
 
-drop table if exists contract_mng;
-create table contract_mng
-(
-    id              bigint      auto_increment primary key,
-    tenant_id       bigint      not null,       -- virtual fk to tenant.id
-    contract_id     bigint      not null,       -- virtual fk to contract.id
-    mng_id          bigint      not null,       -- virtual fk to emp.id
-    start_at        datetime not null,
-    end_at          datetime,
-    created_at      datetime not null,
-    created_by      bigint   not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
 
-create index contract_mng__tenant on contract_mng (tenant_id);
-create index contract_mng__contract on contract_mng (contract_id);
-create index contract_mng__mng on contract_mng (mng_id);
+DROP TABLE if EXISTS contract_mng;
+CREATE TABLE `contract_mng` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `contract_id` bigint NOT NULL,
+  `mng_id` bigint NOT NULL,
+  `start_at` datetime NOT NULL,
+  `end_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_contract_id` (`contract_id`),
+  KEY `idx_mng_id` (`mng_id`)
+) ENGINE=InnoDB COMMENT='合同经理关系记录表';
 
 
-drop table if exists project_mng;
-create table project_mng
-(
-    id              bigint      auto_increment primary key,
-    tenant_id       bigint      not null,       -- virtual fk to tenant.id
-    project_id      bigint      not null,       -- virtual fk to project.id
-    mng_id          bigint      not null,       -- virtual fk to emp.id
-    start_at        datetime not null,
-    end_at          datetime,
-    created_at      datetime not null,
-    created_by      bigint   not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
 
-create index project_mng__tenant on project_mng (tenant_id);
-create index project_mng__project on project_mng (project_id);
-create index project_mng__mng on project_mng (mng_id);
+DROP TABLE if EXISTS project_mng;
+CREATE TABLE `project_mng` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `project_id` bigint NOT NULL,
+  `mng_id` bigint NOT NULL,
+  `start_at` datetime NOT NULL,
+  `end_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_project_id` (`project_id`),
+  KEY `idx_mng_id` (`mng_id`)
+) ENGINE=InnoDB COMMENT='项目经理关系记录表';
 
-drop table if exists project_member;
-create table project_member
-(
-    id              bigint      auto_increment primary key,
-    tenant_id       bigint      not null,       -- virtual fk to tenant.id
-    project_id      bigint      not null,      -- virtual fk to project.id
-    emp_id          bigint      not null,       -- virtual fk to emp.id
-    estimate_invest_ratio    smallint not null,
-    start_at        datetime not null,
-    end_at          datetime,
-    status_code     char(2)  not null,
-    created_at      datetime not null,
-    created_by      bigint   not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
 
-create index project_member__tenant on project_member (tenant_id);
-create index project_member__project on project_member (project_id);
-create index project_member__emp on project_member (emp_id);
+DROP TABLE if EXISTS project_member;
+CREATE TABLE `project_member` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `project_id` bigint NOT NULL,
+  `emp_id` bigint NOT NULL,
+  `estimate_invest_ratio` smallint NOT NULL COMMENT '预计投入百分比',
+  `start_at` datetime NOT NULL,
+  `end_at` datetime DEFAULT NULL,
+  `status_code` char(2) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_project_id` (`project_id`),
+  KEY `idx_emp_id` (`emp_id`)
+) ENGINE=InnoDB COMMENT='项目成员';
 
 -- Projectmng module end
 
 -- Effortmng module begin
 
-drop table if exists effort_record;
-create table effort_record
-(
-    id              bigint      auto_increment primary key,
-    tenant_id       bigint      not null,       -- virtual fk to tenant.id
-    project_id      bigint      not null,      -- virtual fk to project.id
-    emp_id          bigint      not null,       -- virtual fk to emp.id
-    work_date       date     not null,
-    effort          decimal(2,1) not null,
-    notes           varchar(255),
-    created_at      datetime not null,
-    created_by      bigint   not null,
-    last_updated_at datetime,
-    last_updated_by bigint
-);
-
-create index effort_record__tenant on effort_record (tenant_id);
-create index effort_record__project on effort_record (project_id);
-create index effort_record__emp on effort_record (emp_id);
+DROP TABLE if EXISTS effort_record;
+CREATE TABLE `effort_record` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint NOT NULL,
+  `project_id` bigint NOT NULL,
+  `emp_id` bigint NOT NULL,
+  `work_date` date NOT NULL COMMENT '日期',
+  `effort` decimal(2,1) NOT NULL COMMENT '工时',
+  `notes` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` bigint NOT NULL,
+  `last_updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated_by` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_project_id` (`project_id`),
+  KEY `idx_emp_id` (`emp_id`)
+) ENGINE=InnoDB COMMENT='工时记录';
 
 -- Effortmng module end
 
