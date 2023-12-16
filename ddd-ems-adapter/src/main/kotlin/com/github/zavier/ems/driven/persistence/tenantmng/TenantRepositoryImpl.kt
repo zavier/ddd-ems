@@ -1,4 +1,4 @@
-package com.github.zavier.ems.repository.tenantmng
+package com.github.zavier.ems.driven.persistence.tenantmng
 
 import com.github.zavier.ems.tenantmng.TenantRepository
 import com.github.zavier.ems.tenantmng.TenantStatus

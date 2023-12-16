@@ -33,7 +33,8 @@ abstract class AuditableEntity(var createdAt: LocalDateTime, var createdBy: Long
 
 
 open class AggregateRoot(createdAt: LocalDateTime, createdBy: Long) : AuditableEntity(createdAt, createdBy) {
-    var version: Long? = null
+    // 乐观锁
+    var version: Long = 0
 }
 
 interface WithCode {

@@ -1,4 +1,4 @@
-package com.github.zavier.ems.restful.orgmng
+package com.github.zavier.ems.driving.restful.orgmng
 
 import com.github.zavier.ems.orgmng.orgservice.CreateOrgRequest
 import com.github.zavier.ems.orgmng.orgservice.OrgResponse

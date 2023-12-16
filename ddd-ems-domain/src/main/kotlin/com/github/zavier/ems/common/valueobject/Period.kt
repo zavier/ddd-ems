@@ -3,16 +3,16 @@ package com.github.zavier.ems.common.valueobject
 import java.time.LocalDate
 import java.util.*
 
-class Period private constructor(val start: LocalDate, val end: LocalDate) {
+class Period(val start: LocalDate, val end: LocalDate) {
 
     init {
         require(!(start.isAfter(end))) { "结束日期不能小于开始日期！" }
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val period = o as Period
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val period = other as Period
         return start == period.start && end == period.end
     }
 

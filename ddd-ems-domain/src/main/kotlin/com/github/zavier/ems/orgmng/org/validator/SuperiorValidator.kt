@@ -10,6 +10,7 @@ import com.github.zavier.ems.orgmng.orgtype.OrgTypeRepository
 import com.github.zavier.ems.orgmng.orgtype.OrgTypeStatus
 import org.springframework.stereotype.Component
 
+// 领域服务
 @Component
 class SuperiorValidator(private val orgTypeRepository: OrgTypeRepository,
                         private val orgRepository: OrgRepository) {

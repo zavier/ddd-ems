@@ -6,6 +6,7 @@ import com.github.zavier.ems.orgmng.org.validator.OrgNameValidator
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
+// 领域服务
 @Component
 class OrgHandler(
     private val assertOrgName: OrgNameValidator,

@@ -56,7 +56,7 @@ class Emp : AggregateRoot {
     fun addSkill(skillTypeId: Long, level: SkillLevel, duration: Int, userId: Long) {
         skillTypeShouldNotDuplicated(skillTypeId)
 
-        val newSkill: Skill = Skill(tenantId, skillTypeId, userId).setLevel(level).setDuration(duration)
+        val newSkill = Skill(tenantId, skillTypeId, level, duration, userId)
 
         skills[skillTypeId] = newSkill
     }
@@ -100,13 +100,13 @@ class Emp : AggregateRoot {
     fun addExperience(period: Period, company: String, userId: Long) {
         durationShouldNotOverlap(period)
 
-        val newExperience: WorkExperience = WorkExperience(
-            id = null,
+        val newExperience = WorkExperience(
             tenantId,
             period,
+            company,
             LocalDateTime.now(),
-            userId
-        ).setCompany(company)
+            userId,
+        )
         experiences[period] = newExperience
     }
 

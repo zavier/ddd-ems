@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 class OrgService(
     private val orgBuilderFactory: OrgBuilderFactory,
     private val orgRepository: OrgRepository,
-    val orgHandler: OrgHandler
+    private val orgHandler: OrgHandler
 ) {
 
 

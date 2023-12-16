@@ -1,4 +1,4 @@
-package com.github.zavier.ems.repository.orgmng
+package com.github.zavier.ems.driven.persistence.orgmng
 
 import com.github.zavier.ems.orgmng.org.Org
 import com.github.zavier.ems.orgmng.org.OrgRepository
